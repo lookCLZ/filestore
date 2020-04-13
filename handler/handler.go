@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"filestore/meta"
 	"filestore/util"
 	"fmt"
@@ -59,4 +60,20 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 
 func UploadSucHandler(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, "Upload finished!")
+}
+
+// 获取文件元信息
+func GetFileMetaHandler(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	// Form contains the parsed form data, including both the URL field's query parameters and the PATCH, POST, or PUT form data. This field is only available after ParseForm is called. The HTTP client ignores Form and uses Body instead
+	// 表单包含已解析的表单数据，包括URL字段的查询参数和修补程序、POST或PUT表单数据。此字段仅在调用ParseForm后可用。HTTP客户端忽略Form，而使用Body
+	fmt.Printf("%+v", r.Form["filehash"])
+	filehash := r.Form["filehash"][0]
+	fMeta := meta.GetFileMeta(filehash)
+	data, err := json.Marshal(fMeta)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Write(data)
 }
