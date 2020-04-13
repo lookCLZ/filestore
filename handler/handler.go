@@ -36,7 +36,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 			UploadAt: time.Now().Format("2006-01-02 15:04:05"),
 		}
 
-		newFile, err := os.Create(fileMeta.Location + head.Filename)
+		newFile, err := os.Create(fileMeta.Location)
 		if err != nil {
 			fmt.Printf("Failed to create file,err:%s\n", err.Error())
 			return
@@ -75,5 +75,31 @@ func GetFileMetaHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	w.Write(data)
+}
+
+func DownloadHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("DownloadHandler")
+	r.ParseForm()
+	// Get gets the first value associated with the given key. If there are no values associated with the key, Get returns the empty string. To access multiple values, use the map directly.
+	// 获取与给定键关联的第一个值。如果没有与键关联的值，Get将返回空字符串。
+	fsha1 := r.Form.Get("filehash")
+	fm := meta.GetFileMeta(fsha1)
+
+	fmt.Printf("%+v", fm)
+	f, err := os.Open(fm.Location)
+	if err != nil {
+		fmt.Println("error1", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	defer f.Close()
+
+	data, err := ioutil.ReadAll(f)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+	w.Header().Set("Content-Type", "application/octect-stream")
+	w.Header().Set("Content-disposition", "attachment;filename=\""+fm.FileName+"\"")
 	w.Write(data)
 }
