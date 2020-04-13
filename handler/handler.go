@@ -1,11 +1,14 @@
 package handler
 
 import (
+	"filestore/meta"
+	"filestore/util"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"time"
 )
 
 func UploadHandler(w http.ResponseWriter, r *http.Request) {
@@ -26,18 +29,30 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		defer file.Close()
 
-		newFile, err := os.Create("/Users/liuhongrui/Desktop/temp/" + head.Filename)
+		fileMeta := meta.FileMeta{
+			FileName: head.Filename,
+			Location: "/tmp/" + head.Filename,
+			UploadAt: time.Now().Format("2006-01-02 15:04:05"),
+		}
+
+		newFile, err := os.Create(fileMeta.Location + head.Filename)
 		if err != nil {
 			fmt.Printf("Failed to create file,err:%s\n", err.Error())
 			return
 		}
 		defer newFile.Close()
 
-		if _, err := io.Copy(newFile, file); err != nil {
+		fileMeta.FileSize, err = io.Copy(newFile, file)
+		if err != nil {
 			fmt.Println("Failed to save data into file,err:%s\n", err.Error())
 			return
 		}
 
+		newFile.Seek(0, 0)
+		fileMeta.FileSha1 = util.FileSha1(newFile)
+		meta.UpdateFileMeta(fileMeta)
+
+		fmt.Printf("%+v", fileMeta)
 		http.Redirect(w, r, "/file/upload/suc", http.StatusFound)
 	}
 }
