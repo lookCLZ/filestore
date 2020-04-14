@@ -134,5 +134,12 @@ func FileMetaUpdateHandler(w http.ResponseWriter, r *http.Request){
 }
 
 func FileDeleteHandler(w http.ResponseWriter,r *http.Request){
-	
+	r.ParseForm()
+	fileSha1:=r.Form.Get("filehash")
+
+	fMeta:=meta.GetFileMeta(fileSha1)
+	os.Remove(fMeta.Location)
+
+	meta.RemoveFileMeta(fileSha1)
+	w.WriteHeader(http.StatusOK)
 }
