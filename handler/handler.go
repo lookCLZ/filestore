@@ -110,7 +110,10 @@ func FileMetaUpdateHandler(w http.ResponseWriter, r *http.Request){
 	opType:=r.Form["op"][0]
 	fileSha1:=r.Form.Get("filehash")
 	newFileName:=r.Form["filename"][0]
-
+	fmt.Println("////////////")
+	fmt.Println(opType)
+	fmt.Println(fileSha1)
+	fmt.Println(newFileName)
 	if opType!="0"{
 		w.WriteHeader(http.StatusForbidden)
 		return 
