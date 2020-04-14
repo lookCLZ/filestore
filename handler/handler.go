@@ -104,43 +104,40 @@ func DownloadHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
-func FileMetaUpdateHandler(w http.ResponseWriter, r *http.Request){
+func FileMetaUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
-	opType:=r.Form["op"][0]
-	fileSha1:=r.Form.Get("filehash")
-	newFileName:=r.Form["filename"][0]
-	fmt.Println("////////////")
-	fmt.Println(opType)
-	fmt.Println(fileSha1)
-	fmt.Println(newFileName)
-	if opType!="0"{
+	opType := r.Form["op"][0]
+	fileSha1 := r.Form.Get("filehash")
+	newFileName := r.Form["filename"][0]
+
+	if opType != "0" {
 		w.WriteHeader(http.StatusForbidden)
-		return 
+		return
 	}
-	if r.Method!="POST"{
+	if r.Method != "POST" {
 		w.WriteHeader(http.StatusMethodNotAllowed)
-		return 
+		return
 	}
 
-	curFileMeta:=meta.GetFileMeta(fileSha1)
-	curFileMeta.FileName=newFileName
+	curFileMeta := meta.GetFileMeta(fileSha1)
+	curFileMeta.FileName = newFileName
 	meta.UpdateFileMeta(curFileMeta)
 
-	data,err:=json.Marshal(curFileMeta)
-	if err!=nil{
+	data, err := json.Marshal(curFileMeta)
+	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		return 
+		return
 	}
 	w.WriteHeader(http.StatusOK)
 	w.Write(data)
 }
 
-func FileDeleteHandler(w http.ResponseWriter,r *http.Request){
+func FileDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	fileSha1:=r.Form.Get("filehash")
+	fileSha1 := r.Form.Get("filehash")
 
-	fMeta:=meta.GetFileMeta(fileSha1)
+	fMeta := meta.GetFileMeta(fileSha1)
 	os.Remove(fMeta.Location)
 
 	meta.RemoveFileMeta(fileSha1)
