@@ -51,7 +51,8 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 
 		newFile.Seek(0, 0)
 		fileMeta.FileSha1 = util.FileSha1(newFile)
-		meta.UpdateFileMeta(fileMeta)
+		// meta.UpdateFileMeta(fileMeta)
+		meta.UpdateFileMetaDB(fileMeta)
 
 		fmt.Printf("%+v", fileMeta)
 		http.Redirect(w, r, "/file/upload/suc", http.StatusFound)
