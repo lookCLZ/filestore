@@ -4,6 +4,7 @@ import (
 	mydb "filestore/db"
 	"filestore/util"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -44,25 +45,36 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // 用户登录
-func SigninHandler(username string, encpwd string) bool {
-	r.ParseForm()
-	username := r.Form.Get("username")
-	password := r.Form.Get("password")
-	encPasswd := utils.Sha1([]byte(password + pwd_salt))
+func SigninHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		// 返回 html页面
+		data, err := ioutil.ReadFile("./static/view/signin.html")
+		if err != nil {
+			io.WriteString(w, "internet server error")
+			return
+		}
+		w.Write(data)
+	} else if r.Method == "POST" {
+		r.ParseForm()
+		username := r.Form.Get("username")
+		password := r.Form.Get("password")
+		encPasswd := util.Sha1([]byte(password + pwd_salt))
 
-	if mydb.UserSignIn(username, encPasswd) {
-		w.Write([]byte("FAILED"))
-		return
+		if !mydb.UserSignIn(username, encPasswd) {
+			fmt.Println("aaa")
+			w.Write([]byte("FAILED"))
+			return
+		}
+		fmt.Println("ccc")
+		token := GenToken(username)
+		fmt.Println("dddd")
+		if !mydb.UpdateToken(username, token) {
+			w.Write([]byte("FAILED"))
+			return
+		}
+		fmt.Println("EEE")
+		w.Write([]byte("http://" + r.Host + "/static/view/home.html"))
 	}
-
-	token:=GenToken(username)
-	if !mydb.UpdateToken(username,token){
-		w.Write([]byte("FAILED"))
-		return
-	}
-
-	w.Write([]byte("http://".r.Host+"./static/view/home.html"))
-
 }
 
 func GenToken(username string) string {

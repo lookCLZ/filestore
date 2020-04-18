@@ -1,6 +1,7 @@
 package db
 
 import (
+	"database/sql"
 	mydb "filestore/db/mysql"
 	"fmt"
 )
@@ -12,6 +13,11 @@ type User struct {
 	SignupAt     string
 	LastActiveAt string
 	Status       int
+}
+
+type TableUser struct {
+	UserName string
+	UserPwd  sql.NullString
 }
 
 // 用户注册
@@ -36,39 +42,43 @@ func UserSignup(username string, passwd string) bool {
 }
 
 func UserSignIn(username string, encpwd string) bool {
-	stmt, err := mydb.DBConn.Prepare("select * from tbl_user where user_name=? limit 1")
+	fmt.Println(0)
+	stmt, err := mydb.DBConn().Prepare("select user_name,user_pwd from tbl_user where user_name=? limit 1")
+	fmt.Println(0.5)
 	if err != nil {
+		fmt.Println(1)
 		fmt.Println(err.Error())
 		return false
 	}
+	defer stmt.Close()
 
-	rows, err := stmt.Query(username)
-	if err != nil {
-		fmt.Println(err.Error)
-		return false
-	}
+	tuser := TableUser{}
+	err = stmt.QueryRow(username).Scan(
+		&tuser.UserName,
+		&tuser.UserPwd,
+	)
 
-	pRows := mydb.ParseRows(rows)
-	if len(pRows) > 0 && string(pRows[0]["user_pwd"].([]byte)) == encpwd {
+	fmt.Printf("%+v", tuser)
+	if tuser.UserPwd.String == encpwd {
+		fmt.Println(true)
 		return true
 	}
 	return false
 }
 
-func UpdateToken(username string,token string)  {
-	stmt,err:=mydb.DBConn().Prepare(
-		"replace into tbl_user_token (username,user_token) value (?,?)"
-	)
-	if err!=nil{
+func UpdateToken(username string, token string) bool {
+	stmt, err := mydb.DBConn().Prepare(
+		"replace into tbl_user_token (user_name,user_token) value (?,?)")
+	if err != nil {
 		fmt.Println(err.Error())
-		return false 
+		return false
 	}
 	defer stmt.Close()
 
-	_,err:=stmt.Exec(username,token)
-	if err!=nil{
+	_, err = stmt.Exec(username, token)
+	if err != nil {
 		fmt.Println(err.Error())
-		return false 
+		return false
 	}
 	return true
 }
