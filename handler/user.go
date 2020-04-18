@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 const (
@@ -40,4 +41,33 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		w.Write([]byte("FAILED"))
 	}
+}
+
+// 用户登录
+func SigninHandler(username string, encpwd string) bool {
+	r.ParseForm()
+	username := r.Form.Get("username")
+	password := r.Form.Get("password")
+	encPasswd := utils.Sha1([]byte(password + pwd_salt))
+
+	if mydb.UserSignIn(username, encPasswd) {
+		w.Write([]byte("FAILED"))
+		return
+	}
+
+	token:=GenToken(username)
+	if !mydb.UpdateToken(username,token){
+		w.Write([]byte("FAILED"))
+		return
+	}
+
+	w.Write([]byte("http://".r.Host+"./static/view/home.html"))
+
+}
+
+func GenToken(username string) string {
+	// 40位字符 md5(username+timestamp+token_salt)+timestamp[:8]
+	ts := fmt.Sprintf("%x", time.Now().Unix())
+	tokenPrefix := util.MD5([]byte(username + ts + "_tokensalt"))
+	return tokenPrefix + ts[:8]
 }
