@@ -1,6 +1,8 @@
 package meta
 
-import mydb "filestore/db"
+import (
+	mydb "filestore/db"
+)
 
 type FileMeta struct {
 	FileSha1 string
@@ -27,6 +29,21 @@ func UpdateFileMetaDB(fmeta FileMeta) bool {
 
 func GetFileMeta(fileSha1 string) FileMeta {
 	return fileMetas[fileSha1]
+}
+
+// 在MySQL中 获取 文件元信息
+func GetFileMetaDB(fileSha1 string) (FileMeta, error) {
+	tfile, err := mydb.GetFileMeta(fileSha1)
+	if err != nil || tfile == nil {
+		return FileMeta{}, err
+	}
+	fmeta := FileMeta{
+		FileSha1: tfile.FileHash,
+		FileName: tfile.FileName.String,
+		FileSize: tfile.FileSize.Int64,
+		Location: tfile.FileAddr.String,
+	}
+	return fmeta, err
 }
 
 func RemoveFileMeta(fileSha1 string) {

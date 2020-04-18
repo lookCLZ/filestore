@@ -12,7 +12,7 @@ import (
 var db *sql.DB
 
 func init() {
-	db, _ = sql.Open(`mysql`, `root:"@rechengpartyloveyou"@tcp()www.rechengparty.com/filestore?charset=utf8`)
+	db, _ = sql.Open(`mysql`, "root:@rechengpartyloveyou@tcp(47.111.181.52:3306)/filestore?charset=utf8")
 	db.SetMaxOpenConns(1000)
 	err := db.Ping()
 	if err != nil {

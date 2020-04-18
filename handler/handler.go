@@ -70,7 +70,12 @@ func GetFileMetaHandler(w http.ResponseWriter, r *http.Request) {
 	// 表单包含已解析的表单数据，包括URL字段的查询参数和修补程序、POST或PUT表单数据。此字段仅在调用ParseForm后可用。HTTP客户端忽略Form，而使用Body
 	fmt.Printf("%+v", r.Form["filehash"])
 	filehash := r.Form["filehash"][0]
-	fMeta := meta.GetFileMeta(filehash)
+	// fMeta := meta.GetFileMeta(filehash)
+	fMeta,err:=meta.GetFileMetaDB(filehash)
+	if err!=nil{
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	data, err := json.Marshal(fMeta)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
