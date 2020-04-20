@@ -72,9 +72,46 @@ func SigninHandler(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("FAILED"))
 			return
 		}
-		fmt.Println("EEE")
-		w.Write([]byte("http://" + r.Host + "/static/view/home.html"))
+
+		resp := util.RespMsg{
+			Code: 0,
+			Msg:  "OK",
+			Data: struct {
+				Location string
+				Username string
+				Token    string
+			}{
+				Location: "http://" + r.Host + "/static/view/home.html",
+				Username: username,
+				Token:    token,
+			},
+		}
+		w.Write(resp.JSONBytes())
 	}
+}
+
+// 查询用户信息
+func UserInfoHandler(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	username := r.Form.Get("username")
+	// token:=r.Form.Get("token")
+
+	// if !IsValidToken(token){
+	// 	w.WriteHeader(http.StatusForbidden)
+	// 	return
+	// }
+
+	user, err := mydb.GerUserInfo(username)
+	if err != nil {
+		w.WriteHeader(http.StatusForbidden)
+	}
+
+	resp := util.ResMsg{
+		Code: 0,
+		Msg:  "OK",
+		Data: user,
+	}
+	w.Write(resp.JSONBytes())
 }
 
 func GenToken(username string) string {

@@ -82,3 +82,17 @@ func UpdateToken(username string, token string) bool {
 	}
 	return true
 }
+
+type User struct {
+	Username     string
+	Email        string
+	Phone        string
+	SignupAt     string
+	LastActiveAt string
+	Status       int
+}
+
+func GetUserInfo(username string) (User,error){
+	mydb.DBConn().Prepare("
+	select user_name,signup_at")
+}
