@@ -101,12 +101,12 @@ func UserInfoHandler(w http.ResponseWriter, r *http.Request) {
 	// 	return
 	// }
 
-	user, err := mydb.GerUserInfo(username)
+	user, err := mydb.GetUserInfo(username)
 	if err != nil {
 		w.WriteHeader(http.StatusForbidden)
 	}
 
-	resp := util.ResMsg{
+	resp := util.RespMsg{
 		Code: 0,
 		Msg:  "OK",
 		Data: user,
