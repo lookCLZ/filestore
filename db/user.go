@@ -42,11 +42,8 @@ func UserSignup(username string, passwd string) bool {
 }
 
 func UserSignIn(username string, encpwd string) bool {
-	fmt.Println(0)
 	stmt, err := mydb.DBConn().Prepare("select user_name,user_pwd from tbl_user where user_name=? limit 1")
-	fmt.Println(0.5)
 	if err != nil {
-		fmt.Println(1)
 		fmt.Println(err.Error())
 		return false
 	}

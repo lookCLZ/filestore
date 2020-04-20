@@ -16,9 +16,7 @@ const (
 
 // 用户注册
 func SignupHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(99)
 	if r.Method == http.MethodGet {
-		fmt.Println(99)
 		data, err := ioutil.ReadFile("./static/view/signup.html")
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -61,13 +59,10 @@ func SigninHandler(w http.ResponseWriter, r *http.Request) {
 		encPasswd := util.Sha1([]byte(password + pwd_salt))
 
 		if !mydb.UserSignIn(username, encPasswd) {
-			fmt.Println("aaa")
 			w.Write([]byte("FAILED"))
 			return
 		}
-		fmt.Println("ccc")
 		token := GenToken(username)
-		fmt.Println("dddd")
 		if !mydb.UpdateToken(username, token) {
 			w.Write([]byte("FAILED"))
 			return
