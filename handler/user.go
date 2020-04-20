@@ -96,7 +96,7 @@ func UserInfoHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.Form.Get("username")
 	// token:=r.Form.Get("token")
 
-	// if !IsValidToken(token){
+	// if !IsTokenValid(token){
 	// 	w.WriteHeader(http.StatusForbidden)
 	// 	return
 	// }
@@ -119,4 +119,11 @@ func GenToken(username string) string {
 	ts := fmt.Sprintf("%x", time.Now().Unix())
 	tokenPrefix := util.MD5([]byte(username + ts + "_tokensalt"))
 	return tokenPrefix + ts[:8]
+}
+
+func IsTokenValid(token string)bool{
+	if len(token)!=40{
+		return false 
+	}
+	return true
 }
