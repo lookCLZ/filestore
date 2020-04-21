@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"filestore/db"
 	"filestore/meta"
 	"filestore/util"
 	"fmt"
@@ -54,6 +55,16 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		// meta.UpdateFileMeta(fileMeta)
 		meta.UpdateFileMetaDB(fileMeta)
 
+		r.ParseForm()
+		username := r.Form.Get("username")
+		suc := db.OnUserFileUploadFinished(username, fileMeta.FileSha1,
+			fileMeta.FileName, fileMeta.FileSize)
+		if suc {
+			http.Redirect(w, r, "/static/view/home.html", http.StatusFound)
+		} else {
+			w.Write([]byte("Upload Failed"))
+		}
+
 		fmt.Printf("%+v", fileMeta)
 		http.Redirect(w, r, "/file/upload/suc", http.StatusFound)
 	}
@@ -71,8 +82,8 @@ func GetFileMetaHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("%+v", r.Form["filehash"])
 	filehash := r.Form["filehash"][0]
 	// fMeta := meta.GetFileMeta(filehash)
-	fMeta,err:=meta.GetFileMetaDB(filehash)
-	if err!=nil{
+	fMeta, err := meta.GetFileMetaDB(filehash)
+	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
