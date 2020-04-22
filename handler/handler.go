@@ -160,3 +160,10 @@ func FileDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	meta.RemoveFileMeta(fileSha1)
 	w.WriteHeader(http.StatusOK)
 }
+
+// 批量查询文件元信息
+func FileQueryHandler(w http.ResponseWriter,
+r *http.Request){
+	r.ParseForm()
+	limitCnt
+}
