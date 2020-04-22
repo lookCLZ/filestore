@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -163,7 +164,19 @@ func FileDeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 // 批量查询文件元信息
 func FileQueryHandler(w http.ResponseWriter,
-r *http.Request){
+	r *http.Request) {
 	r.ParseForm()
-	limitCnt
+	limitCnt, _ := strconv.Atoi(r.Form.Get("limit"))
+	username := r.Form.Get("usrename")
+	userFiles, err := db.QueryUserFileMetas(username, limitCnt)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	data, err := json.Marshal(userFiles)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Write(data)
 }
