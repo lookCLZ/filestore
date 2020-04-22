@@ -167,7 +167,7 @@ func FileQueryHandler(w http.ResponseWriter,
 	r *http.Request) {
 	r.ParseForm()
 	limitCnt, _ := strconv.Atoi(r.Form.Get("limit"))
-	username := r.Form.Get("usrename")
+	username := r.Form.Get("username")
 	userFiles, err := db.QueryUserFileMetas(username, limitCnt)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
