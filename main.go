@@ -24,6 +24,7 @@ func main() {
 	http.HandleFunc("/user/info",
 		handler.HTTPInterceptor(handler.UserInfoHandler),
 	)
+	http.HandleFunc("/file/query",handler.FileQueryHandler)
 
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		fmt.Printf("Failed to start server,err:%s", err.Error())
