@@ -10,4 +10,13 @@ var (
 	redisPass="rechengparty"
 )
 
-func 
+func newRedisPool() *redis.Pool{
+	return &redis.Pool{
+		MaxIdle:50,
+		MaxActive: 30,
+		IdleTimeout: 300 * time.Second,
+		Dial:func()(redis.Conn,error){
+			c,err:=reids
+		}
+	}
+}
